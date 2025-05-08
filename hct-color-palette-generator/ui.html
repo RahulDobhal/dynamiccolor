@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HCT Color Palette Generator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    
+    body {
+      padding: 16px;
+      color: #333;
+      font-size: 12px;
+    }
+    
+    h1 {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    
+    h2 {
+      font-size: 14px;
+      font-weight: 500;
+      margin: 16px 0 8px;
+    }
+    
+    .section {
+      margin-bottom: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 12px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    
+    input[type="color"] {
+      display: block;
+      width: 100%;
+      height: 40px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 2px;
+      cursor: pointer;
+    }
+    
+    input[type="text"] {
+      display: block;
+      width: 100%;
+      height: 36px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 0 8px;
+      font-size: 12px;
+    }
+    
+    button {
+      background-color: #0d99ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-right: 8px;
+      transition: background-color 0.2s;
+    }
+    
+    button:hover {
+      background-color: #007be6;
+    }
+    
+    button.secondary {
+      background-color: #f5f5f5;
+      color: #333;
+      border: 1px solid #e0e0e0;
+    }
+    
+    button.secondary:hover {
+      background-color: #e0e0e0;
+    }
+    
+    button:disabled {
+      background-color: #e0e0e0;
+      color: #999;
+      cursor: not-allowed;
+    }
+    
+    .button-group {
+      display: flex;
+      justify-content: flex-start;
+      margin: 16px 0;
+    }
+    
+    .color-preview {
+      display: flex;
+      align-items: center;
+      margin-top: 8px;
+    }
+    
+    .color-swatch {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      border: 1px solid #e0e0e0;
+      margin-right: 8px;
+    }
+    
+    .progress-container {
+      margin: 16px 0;
+      display: none;
+    }
+    
+    .progress-bar {
+      height: 6px;
+      background-color: #f0f0f0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background-color: #0d99ff;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    
+    .progress-message {
+      font-size: 11px;
+      color: #666;
+      margin-top: 6px;
+    }
+    
+    .palette-preview {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+    }
+    
+    .palette-color {
+      cursor: pointer;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .palette-color-swatch {
+      height: 24px;
+      width: 100%;
+    }
+    
+    .palette-color-info {
+      padding: 4px;
+      font-size: 9px;
+      background-color: white;
+      text-align: center;
+    }
+    
+    .palette-color:hover {
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      margin-right: 8px;
+    }
+    
+    .debug-panel {
+      margin-top: 16px;
+      padding: 12px;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      display: none;
+    }
+    
+    .debug-title {
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    
+    .debug-info {
+      font-family: monospace;
+      font-size: 11px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    
+    .notification.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>HCT Color Palette Generator</h1>
+  
+  <div class="section">
+    <div class="form-group">
+      <label for="baseColor">Base Color</label>
+      <input type="color" id="baseColor" name="baseColor" value="#1E88E5">
+    </div>
+    
+    <div class="form-group">
+      <label for="hexColor">Hex Value</label>
+      <input type="text" id="hexColor" name="hexColor" value="#1E88E5">
+    </div>
+    
+    <div class="color-preview">
+      <div class="color-swatch" id="colorSwatch"></div>
+      <div id="colorInfo">HCT values will appear here</div>
+    </div>
+  </div>
+  
+  <div class="section">
+    <h2>Generation Options</h2>
+    
+    <div class="checkbox-group">
+      <input type="checkbox" id="createStylesOption" name="createStylesOption" checked>
+      <label for="createStylesOption">Create Figma Styles</label>
+    </div>
+    
+    <div class="checkbox-group">
+      <input type="checkbox" id="includeAlphaOption" name="includeAlphaOption">
+      <label for="includeAlphaOption">Include Alpha Variants</label>
+    </div>
+  </div>
+  
+  <div class="button-group">
+    <button id="generateButton">Generate Palette</button>
+    <button id="previewButton" class="secondary">Preview Only</button>
+  </div>
+  
+  <div class="progress-container" id="progressContainer">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-message" id="progressMessage">Processing...</div>
+  </div>
+  
+  <div class="section">
+    <h2>Palette Preview</h2>
+    <div class="palette-preview" id="palettePreview">
+      <!-- Palette colors will be generated here -->
+    </div>
+  </div>
+  
+  <div class="debug-panel" id="debugPanel">
+    <div class="debug-title">Debug Information</div>
+    <div class="debug-info" id="debugInfo"></div>
+  </div>
+  
+  <div class="notification" id="notification">Color copied to clipboard</div>
+  
+  <script>
+    // DOM Elements
+    const baseColorInput = document.getElementById('baseColor');
+    const hexColorInput = document.getElementById('hexColor');
+    const colorSwatch = document.getElementById('colorSwatch');
+    const colorInfo = document.getElementById('colorInfo');
+    const generateButton = document.getElementById('generateButton');
+    const previewButton = document.getElementById('previewButton');
+    const createStylesOption = document.getElementById('createStylesOption');
+    const includeAlphaOption = document.getElementById('includeAlphaOption');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressFill = document.getElementById('progressFill');
+    const progressMessage = document.getElementById('progressMessage');
+    const palettePreview = document.getElementById('palettePreview');
+    const debugPanel = document.getElementById('debugPanel');
+    const debugInfo = document.getElementById('debugInfo');
+    const notification = document.getElementById('notification');
+    
+    // State
+    let baseColor = '#1E88E5';
+    let toneSteps = [0, 4, 8, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 99, 100];
+    let palette = [];
+    
+    // Initialize UI
+    function initUI() {
+      baseColorInput.value = baseColor;
+      hexColorInput.value = baseColor;
+      colorSwatch.style.backgroundColor = baseColor;
+      updateColorInfo('Loading...');
+      
+      // Send a message to the plugin to get initial data
+      parent.postMessage({ pluginMessage: { type: 'init' } }, '*');
+    }
+    
+    // Update the color info display
+    function updateColorInfo(info) {
+      colorInfo.textContent = info;
+    }
+    
+    // Show a notification
+    function showNotification(message) {
+      notification.textContent = message;
+      notification.classList.add('visible');
+      
+      setTimeout(() => {
+        notification.classList.remove('visible');
+      }, 2000);
+    }
+    
+    // Copy text to clipboard
+    function copyToClipboard(text) {
+      const input = document.createElement('input');
+      input.style.position = 'fixed';
+      input.style.opacity = 0;
+      input.value = text;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+      
+      showNotification('Color copied to clipboard');
+    }
+    
+    // Update the progress bar
+    function updateProgress(percent, message) {
+      progressFill.style.width = `${percent}%`;
+      progressMessage.textContent = message || 'Processing...';
+      
+      if (percent <= 0) {
+        progressContainer.style.display = 'none';
+      } else {
+        progressContainer.style.display = 'block';
+      }
+    }
+    
+    // Generate the palette preview
+    function generatePalettePreview(paletteData) {
+      palettePreview.innerHTML = '';
+      palette = paletteData;
+      
+      paletteData.forEach(item => {
+        const colorEl = document.createElement('div');
+        colorEl.className = 'palette-color';
+        colorEl.setAttribute('data-hex', item.hex);
+        colorEl.setAttribute('data-tone', item.tone);
+        
+        const swatchEl = document.createElement('div');
+        swatchEl.className = 'palette-color-swatch';
+        swatchEl.style.backgroundColor = item.hex;
+        
+        const infoEl = document.createElement('div');
+        infoEl.className = 'palette-color-info';
+        infoEl.textContent = `T${item.tone}`;
+        
+        colorEl.appendChild(swatchEl);
+        colorEl.appendChild(infoEl);
+        
+        colorEl.addEventListener('click', () => {
+          copyToClipboard(item.hex);
+        });
+        
+        palettePreview.appendChild(colorEl);
+      });
+    }
+    
+    // Generate an approximate preview immediately while waiting for the real palette
+    function generateApproximatePreview() {
+      const color = baseColorInput.value;
+      const dummyPalette = toneSteps.map(tone => {
+        let hex;
+        
+        if (tone <= 0) {
+          hex = '#000000';
+        } else if (tone >= 100) {
+          hex = '#FFFFFF';
+        } else {
+          // Simple linear interpolation
+          const factor = tone / 100;
+          const rgb = hexToRgb(color);
+          const r = Math.round(rgb.r * factor + (1 - factor) * 255);
+          const g = Math.round(rgb.g * factor + (1 - factor) * 255);
+          const b = Math.round(rgb.b * factor + (1 - factor) * 255);
+          hex = rgbToHex(r, g, b);
+        }
+        
+        return { tone, hex };
+      });
+      
+      generatePalettePreview(dummyPalette);
+    }
+    
+    // Convert hex to RGB
+    function hexToRgb(hex) {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : { r: 0, g: 0, b: 0 };
+    }
+    
+    // Convert RGB to hex
+    function rgbToHex(r, g, b) {
+      return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+    }
+    
+    // Handle messages from the plugin
+    function handlePluginMessage(event) {
+      const message = event.data.pluginMessage;
+      
+      if (!message) return;
+      
+      console.log('Received message:', message);
+      
+      switch (message.type) {
+        case 'init':
+          baseColor = message.baseColor || baseColor;
+          baseColorInput.value = baseColor;
+          hexColorInput.value = baseColor;
+          colorSwatch.style.backgroundColor = baseColor;
+          break;
+          
+        case 'progress':
+          updateProgress(message.progress, message.message);
+          break;
+          
+        case 'done':
+          updateProgress(100, message.message);
+          generatePalettePreview(message.palette);
+          
+          setTimeout(() => {
+            updateProgress(0);
+          }, 2000);
+          break;
+          
+        case 'error':
+          updateProgress(0);
+          alert(`Error: ${message.message}`);
+          break;
+          
+        case 'debug':
+          debugPanel.style.display = 'block';
+          const hctInfo = `HCT: H=${message.baseHct[0].toFixed(2)}, C=${message.baseHct[1].toFixed(2)}, T=${message.baseHct[2].toFixed(2)}`;
+          updateColorInfo(hctInfo);
+          
+          generatePalettePreview(message.actualPalette);
+          
+          let debugText = 'HCT Values:\n';
+          debugText += `H: ${message.baseHct[0].toFixed(2)}, C: ${message.baseHct[1].toFixed(2)}, T: ${message.baseHct[2].toFixed(2)}\n\n`;
+          debugText += 'Palette Comparison:\n';
+          
+          message.actualPalette.forEach((item, index) => {
+            const approxItem = message.approxPalette[index];
+            debugText += `T${item.tone}: ${item.hex} (Approx: ${approxItem.hex})\n`;
+          });
+          
+          debugInfo.textContent = debugText;
+          break;
+      }
+    }
+    
+    // Event Listeners
+    baseColorInput.addEventListener('input', function() {
+      const color = this.value;
+      baseColor = color;
+      hexColorInput.value = color;
+      colorSwatch.style.backgroundColor = color;
+      
+      // Send preview request with debug on to get HCT information
+      parent.postMessage({
+        pluginMessage: {
+          type: 'generate',
+          baseColor: color,
+          debug: true
+        }
+      }, '*');
+    });
+    
+    hexColorInput.addEventListener('input', function() {
+      let color = this.value;
+      
+      // Add # if missing
+      if (!color.startsWith('#')) {
+        color = '#' + color;
+      }
+      
+      // Validate hex color format
+      if (/^#[0-9A-F]{6}$/i.test(color)) {
+        baseColor = color;
+        baseColorInput.value = color;
+        colorSwatch.style.backgroundColor = color;
+        
+        // Send preview request with debug on to get HCT information
+        parent.postMessage({
+          pluginMessage: {
+            type: 'generate',
+            baseColor: color,
+            debug: true
+          }
+        }, '*');
+      }
+    });
+    
+    generateButton.addEventListener('click', function() {
+      updateProgress(10, 'Starting palette generation...');
+      
+      // Generate the full palette and create styles
+      parent.postMessage({
+        pluginMessage: {
+          type: 'generate',
+          baseColor: baseColor,
+          createStyles: createStylesOption.checked,
+          includeAlpha: includeAlphaOption.checked
+        }
+      }, '*');
+    });
+    
+    previewButton.addEventListener('click', function() {
+      updateProgress(10, 'Generating preview...');
+      
+      // Generate just a preview with debug information
+      parent.postMessage({
+        pluginMessage: {
+          type: 'generate',
+          baseColor: baseColor,
+          debug: true
+        }
+      }, '*');
+    });
+    
+    // Listen for messages from the plugin
+    window.addEventListener('message', handlePluginMessage);
+    
+    // Initialize the UI
+    initUI();
+  </script>
+</body>
+</html> 
