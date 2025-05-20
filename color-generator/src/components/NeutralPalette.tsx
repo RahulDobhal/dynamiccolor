@@ -69,6 +69,7 @@ interface NeutralPaletteProps {
     tone: number;
     chroma: number;
     hex: string;
+    name?: string;
   }>;
   getBestTextColor: (hex: string) => string;
 }
@@ -77,14 +78,14 @@ const NeutralPalette: React.FC<NeutralPaletteProps> = ({ palette, getBestTextCol
   return (
     <Container>
       <SwatchesContainer>
-        {palette.map(({ tone, chroma, hex }) => (
+        {palette.map(({ tone, chroma, hex, name }) => (
           <Swatch 
             key={tone} 
             color={hex}
             textColor={getBestTextColor(hex)}
           >
             <SwatchContent>
-              <SwatchLabel>T{tone}</SwatchLabel>
+              <SwatchLabel>{name || `n${tone}`}</SwatchLabel>
               <SwatchInfo>
                 <InfoItem>{hex.toUpperCase()}</InfoItem>
                 <InfoItem>C{chroma.toFixed(1)}</InfoItem>

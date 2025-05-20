@@ -116,6 +116,36 @@ const InfoContent = styled.div`
   font-size: ${typography.sizes.sm};
 `;
 
+const ControlRow = styled.div`
+  display: flex;
+  gap: ${spacing.md};
+  margin-top: ${spacing.md};
+  align-items: center;
+  flex-wrap: wrap;
+`;
+
+const ControlLabel = styled.label`
+  font-family: ${typography.fontFamily};
+  font-size: ${typography.sizes.sm};
+  display: flex;
+  align-items: center;
+  gap: ${spacing.sm};
+`;
+
+const StepInput = styled.input`
+  padding: ${spacing.xs} ${spacing.sm};
+  border: 1px solid #e0e0e0;
+  border-radius: ${borders.radius.sm};
+  width: 60px;
+  font-family: ${typography.fontFamily};
+  font-size: ${typography.sizes.sm};
+`;
+
+const Checkbox = styled.input`
+  margin: 0;
+  cursor: pointer;
+`;
+
 const ColorGenerator: React.FC = () => {
   const [baseColor, setBaseColor] = useState('#1E88E5');
   const [tonalPalette, setTonalPalette] = useState<{ tone: number; hex: string; chroma: number }[]>([]);
@@ -125,27 +155,46 @@ const ColorGenerator: React.FC = () => {
   const [textColor, setTextColor] = useState('#FFFFFF');
   const [hctValues, setHctValues] = useState({ hue: 0, chroma: 0, tone: 0 });
   const [curveFunction, setCurveFunction] = useState<CurveFunction>('material');
+  const [stepCount, setStepCount] = useState(13);
+  const [includeExtremes, setIncludeExtremes] = useState(true);
 
   useEffect(() => {
-    const palette = generateTonalPalette(baseColor, curveFunction);
-    const neutral = generateNeutralPalette(baseColor, curveFunction);
+    const palette = generateTonalPalette(baseColor, curveFunction, stepCount, includeExtremes);
+    const neutral = generateNeutralPalette(baseColor, curveFunction, stepCount, includeExtremes);
     setTonalPalette(palette);
     setNeutralPalette(neutral);
 
     const { tone } = hexToHct(baseColor);
-    const nearestIndex = findNearestToneIndex(tone);
+    const nearestIndex = findNearestToneIndex(tone, palette.map(p => p.tone));
     setInputToneIndex(nearestIndex);
     
     setTextColor(getBestTextColor(baseColor));
     setHctValues(hexToHct(baseColor));
     setSelectedSwatchIndex(null);
-  }, [baseColor, curveFunction]);
+  }, [baseColor, curveFunction, stepCount, includeExtremes]);
+
+  const handleCurveFunctionChange = (curve: CurveFunction) => {
+    setCurveFunction(curve);
+    // Reset selected swatch when changing curve function
+    setSelectedSwatchIndex(null);
+  }
 
   const handleSwatchClick = (index: number) => {
     setSelectedSwatchIndex(index);
   };
 
   const selectedSwatch = selectedSwatchIndex !== null ? tonalPalette[selectedSwatchIndex] : null;
+
+  const handleStepCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value) && value >= 3 && value <= 30) {
+      setStepCount(value);
+    }
+  };
+
+  const handleIncludeExtremesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIncludeExtremes(e.target.checked);
+  };
 
   return (
     <Container>
@@ -168,6 +217,27 @@ const ColorGenerator: React.FC = () => {
               Using {textColor} for optimal contrast
             </DemoDetails>
           </TextOnColorDemo>
+
+          <ControlRow>
+            <ControlLabel>
+              Number of Steps:
+              <StepInput 
+                type="number" 
+                min="3" 
+                max="30" 
+                value={stepCount} 
+                onChange={handleStepCountChange}
+              />
+            </ControlLabel>
+            <ControlLabel>
+              <Checkbox 
+                type="checkbox" 
+                checked={includeExtremes} 
+                onChange={handleIncludeExtremesChange}
+              />
+              Include Pure Black/White (T0/T100)
+            </ControlLabel>
+          </ControlRow>
         </Section>
 
         <Section>
@@ -188,6 +258,13 @@ const ColorGenerator: React.FC = () => {
                 <p>Best Text Color: {textColor}</p>
               </InfoContent>
             </InfoCard>
+            <InfoCard>
+              <InfoTitle>Curve Function</InfoTitle>
+              <InfoContent>
+                <p>Selected: {curveFunction.charAt(0).toUpperCase() + curveFunction.slice(1)}</p>
+                <p><i>Note: Curve function only affects tone distribution, not chroma or hue values</i></p>
+              </InfoContent>
+            </InfoCard>
           </InfoSection>
         </Section>
 
@@ -197,7 +274,7 @@ const ColorGenerator: React.FC = () => {
             baseColor={baseColor} 
             palette={tonalPalette}
             curveFunction={curveFunction}
-            onCurveFunctionChange={setCurveFunction}
+            onCurveFunctionChange={handleCurveFunctionChange}
           />
         </Section>
 
