@@ -1,6 +1,6 @@
-import React from 'react';
-import styled from 'styled-components';
-import { spacing, borders, shadows, typography } from '../styles/tokens';
+import React from "react";
+import styled from "styled-components";
+import { spacing, borders, shadows, typography } from "../styles/tokens";
 
 const Container = styled.div`
   display: flex;
@@ -22,8 +22,8 @@ const Swatch = styled.div<{ color: string; textColor: string }>`
   display: flex;
   flex-direction: column;
   aspect-ratio: 1;
-  background-color: ${props => props.color};
-  color: ${props => props.textColor};
+  background-color: ${(props) => props.color};
+  color: ${(props) => props.textColor};
   border-radius: ${borders.radius.md};
   font-family: ${typography.fontFamily};
   font-size: ${typography.sizes.sm};
@@ -74,16 +74,25 @@ interface NeutralPaletteProps {
   getBestTextColor: (hex: string) => string;
 }
 
-const NeutralPalette: React.FC<NeutralPaletteProps> = ({ palette, getBestTextColor }) => {
+const NeutralPalette: React.FC<NeutralPaletteProps> = ({
+  palette,
+  getBestTextColor,
+}) => {
+  console.log(palette);
   return (
     <Container>
+      <style>
+        {`
+          body {
+            ${palette
+              .map((color) => `--tone-${color.name}: ${color.hex};`)
+              .join("\n            ")}
+          }
+        `}
+      </style>
       <SwatchesContainer>
         {palette.map(({ tone, chroma, hex, name }) => (
-          <Swatch 
-            key={tone} 
-            color={hex}
-            textColor={getBestTextColor(hex)}
-          >
+          <Swatch key={tone} color={hex} textColor={getBestTextColor(hex)}>
             <SwatchContent>
               <SwatchLabel>{name || `n${tone}`}</SwatchLabel>
               <SwatchInfo>
@@ -98,4 +107,4 @@ const NeutralPalette: React.FC<NeutralPaletteProps> = ({ palette, getBestTextCol
   );
 };
 
-export default NeutralPalette; 
+export default NeutralPalette;

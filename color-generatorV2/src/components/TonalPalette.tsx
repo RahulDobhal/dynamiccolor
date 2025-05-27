@@ -1,7 +1,7 @@
-import React from 'react';
-import styled from 'styled-components';
-import { spacing, typography } from '../styles/tokens';
-import TonalSwatch from './TonalSwatch';
+import React from "react";
+import styled from "styled-components";
+import { spacing, typography } from "../styles/tokens";
+import TonalSwatch from "./TonalSwatch";
 
 interface TonalColor {
   tone: number;
@@ -33,13 +33,23 @@ const SwatchGrid = styled.div`
   gap: ${spacing.md};
 `;
 
-const TonalPalette: React.FC<TonalPaletteProps> = ({ 
-  palette, 
+const TonalPalette: React.FC<TonalPaletteProps> = ({
+  palette,
   inputToneIndex,
-  onSwatchClick
+  onSwatchClick,
 }) => {
+  console.log(palette);
   return (
     <Container>
+      <style>
+        {`
+          body {
+            ${palette
+              .map((color) => `--tone-${color.tone}: ${color.hex};`)
+              .join("\n            ")}
+          }
+        `}
+      </style>
       <Title>Tonal Palette</Title>
       <SwatchGrid>
         {palette.map((color, index) => (
@@ -56,4 +66,4 @@ const TonalPalette: React.FC<TonalPaletteProps> = ({
   );
 };
 
-export default TonalPalette; 
+export default TonalPalette;

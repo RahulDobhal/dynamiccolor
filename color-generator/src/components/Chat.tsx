@@ -1,25 +1,10 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import {
+  C1Chat,
   useThreadManager,
   useThreadListManager,
-  ThemeProvider,
 } from "@thesysai/genui-sdk";
-import {
-  Container,
-  SidebarContainer,
-  SidebarContent,
-  SidebarHeader,
-  SidebarSeparator,
-  ThreadContainer,
-  MobileHeader,
-  ScrollArea,
-  Composer,
-  NewChatButton,
-  ThreadList,
-} from "@crayonai/react-ui/Shell";
-import { ChatProvider } from "@crayonai/react-core";
 import "@crayonai/react-ui/styles/index.css";
-import ChatComponents from "./ChatComponents";
 
 export const Chat = () => {
   const threadListManager = useThreadListManager({
@@ -28,7 +13,7 @@ export const Chat = () => {
     updateThread: async (t) => t,
     onSwitchToNew: async () => {},
     onSelectThread: async () => {},
-    createThread: async () => {
+    createThread: async (firstMessage) => {
       return {
         id: "1",
         threadId: "1",
@@ -48,212 +33,11 @@ export const Chat = () => {
     threadListManager.selectThread("1");
   }, []);
 
-  // return (
-  //   <C1Chat
-  //     threadManager={threadManager}
-  //     threadListManager={threadListManager}
-  //     theme={{
-  //       theme: {
-  //         // Colors
-  //         backgroundFills: "rgba(28, 28, 28, 1)",
-  //         brandElFills: "rgba(255, 255, 255, 1)",
-  //         brandElHoverFills: "rgba(255, 255, 255, 0.8)",
-  //         containerFills: "rgba(43, 43, 43, 1)",
-  //         overlayFills: "rgba(0, 0, 0, 0.4)",
-  //         sunkFills: "rgba(0, 0, 0, 0.2)",
-  //         containerHoverFills: "rgba(255, 255, 255, 0.1)",
-  //         dangerFills: "rgba(217, 45, 32, 0.1)",
-  //         successFills: "rgba(7, 148, 85, 0.1)",
-  //         strokeDefault: "rgba(255, 255, 255, 0.06)",
-  //         strokeInteractiveEl: "rgba(255, 255, 255, 0.12)",
-  //         strokeInteractiveElHover: "rgba(255, 255, 255, 0.4)",
-  //         strokeInteractiveElSelected: "rgba(255, 255, 255, 1)",
-  //         brandText: "rgba(0, 0, 0, 1)",
-  //         brandSecondaryText: "rgba(255, 255, 255, 0.4)",
-  //         primaryText: "rgba(255, 255, 255, 1)",
-  //         secondaryText: "rgba(255, 255, 255, 0.6)",
-  //         disabledText: "rgba(255, 255, 255, 0.2)",
-  //         dangerText: "rgba(253, 162, 155, 1)",
-  //         successText: "rgba(117, 224, 167, 1)",
-  //         linkText: "rgba(255, 255, 255, 1)",
-  //         infoText: "rgba(125, 179, 247, 1)",
-  //         chatContainerBg: "rgba(25, 25, 25, 1)",
-  //         chatAssistantResponseBg: "rgba(41, 41, 41, 1)",
-  //         chatUserResponseBg: "rgba(255, 255, 255, 1)",
-  //         chatAssistantResponseText: "rgba(255, 255, 255, 1)",
-  //         chatUserResponseText: "rgba(25, 25, 25, 1)",
-
-  //         // Layout
-  //         spacing0: "0px",
-  //         spacing3xs: "2px",
-  //         spacing2xs: "4px",
-  //         spacingXs: "6px",
-  //         spacingS: "8px",
-  //         spacingM: "12px",
-  //         spacingL: "18px",
-  //         spacingXl: "24px",
-  //         spacing2xl: "36px",
-  //         spacing3xl: "48px",
-  //         rounded0: "0px",
-  //         rounded3xs: "4px",
-  //         rounded2xs: "8px",
-  //         roundedXs: "10px",
-  //         roundedS: "12px",
-  //         roundedM: "20px",
-  //         roundedL: "20px",
-  //         roundedXl: "24px",
-  //         rounded2xl: "28px",
-  //         rounded3xl: "32px",
-  //         rounded4xl: "48px",
-  //         roundedFull: "999px",
-  //         roundedClickable: "999px",
-
-  //         // Typography
-  //         fontPrimary: "Figtree 400 14px/20px",
-  //         fontTitle: "Figtree 500 14px/20px",
-  //         fontTitleMedium: "Figtree 500 16px/24px",
-  //         fontTitleSmall: "Figtree 500 14px/20px",
-  //         fontBody: "Figtree 400 14px/18px",
-  //         fontBodyMedium: "Figtree 400 16px/24px",
-  //         fontBodySmall: "Figtree 400 14px/20px",
-  //         fontBodyHeavy: "Figtree 600 16px/24px",
-  //         fontBodySmallHeavy: "Figtree 600 14px/20px",
-  //         fontBodyLink: "Figtree 500 14px/18px",
-  //         fontLabel: "Figtree 400 12px/16px",
-  //         fontLabelHeavy: "Figtree 500 12px/16px",
-  //         fontLabelSmall: "Figtree 400 10px/16px",
-  //         fontLabelSmallHeavy: "Figtree 500 10px/16px",
-  //         fontLabelExtraSmall: "Figtree 400 8px/12px",
-  //         fontLabelExtraSmallHeavy: "Figtree 500 8px/12px",
-  //         fontLabelLarge: "Figtree 400 12px/16px",
-  //         fontLabelLargeHeavy: "Figtree 500 12px/16px",
-  //         fontLabelMedium: "Figtree 400 10px/16px",
-  //         fontLabelMediumHeavy: "Figtree 600 10px/16px",
-  //         fontHeadingLarge: "Figtree 600 28px/36px",
-  //         fontHeadingMedium: "Figtree 600 24px/32px",
-  //         fontHeadingSmall: "Figtree 600 18px/24px",
-
-  //         // Effects
-  //         shadowS: "rgba(0, 0, 0, 0.04)",
-  //         shadowM: "rgba(0, 0, 0, 0.04)",
-  //         shadowL: "rgba(0, 0, 0, 0.08)",
-  //         shadowXl: "rgba(0, 0, 0, 0.1)",
-  //       },
-  //     }}
-  //   />
-  // );
   return (
-    <ThemeProvider
-      theme={{
-        // Colors
-        backgroundFills: "var(--tone-83)",
-        brandElFills: "rgba(255, 255, 255, 1)",
-        brandElHoverFills: "rgba(255, 255, 255, 0.8)",
-        containerFills: "var(--tone-83)",
-        overlayFills: "rgba(0, 0, 0, 0.4)",
-        sunkFills: "rgba(0, 0, 0, 0.2)",
-        containerHoverFills: "rgba(255, 255, 255, 0.1)",
-        dangerFills: "rgba(217, 45, 32, 0.1)",
-        successFills: "rgba(7, 148, 85, 0.1)",
-        strokeDefault: "rgba(255, 255, 255, 0.06)",
-        strokeInteractiveEl: "rgba(255, 255, 255, 0.12)",
-        strokeInteractiveElHover: "rgba(255, 255, 255, 0.4)",
-        strokeInteractiveElSelected: "rgba(255, 255, 255, 1)",
-        brandText: "rgba(0, 0, 0, 1)",
-        brandSecondaryText: "rgba(255, 255, 255, 0.4)",
-        primaryText: "rgba(255, 255, 255, 1)",
-        secondaryText: "rgba(255, 255, 255, 0.6)",
-        disabledText: "rgba(255, 255, 255, 0.2)",
-        dangerText: "rgba(253, 162, 155, 1)",
-        successText: "rgba(117, 224, 167, 1)",
-        linkText: "rgba(255, 255, 255, 1)",
-        infoText: "rgba(125, 179, 247, 1)",
-        chatContainerBg: "var(--tone-57)",
-        chatAssistantResponseBg: "rgba(41, 41, 41, 1)",
-        chatUserResponseBg: "rgba(255, 255, 255, 1)",
-        chatAssistantResponseText: "rgba(255, 255, 255, 1)",
-        chatUserResponseText: "rgba(25, 25, 25, 1)",
-
-        // Layout
-        spacing0: "0px",
-        spacing3xs: "2px",
-        spacing2xs: "4px",
-        spacingXs: "6px",
-        spacingS: "8px",
-        spacingM: "12px",
-        spacingL: "18px",
-        spacingXl: "24px",
-        spacing2xl: "36px",
-        spacing3xl: "48px",
-        rounded0: "0px",
-        rounded3xs: "4px",
-        rounded2xs: "8px",
-        roundedXs: "10px",
-        roundedS: "12px",
-        roundedM: "20px",
-        roundedL: "20px",
-        roundedXl: "24px",
-        rounded2xl: "28px",
-        rounded3xl: "32px",
-        rounded4xl: "48px",
-        roundedFull: "999px",
-        roundedClickable: "999px",
-
-        // Typography
-        fontPrimary: "Figtree 400 14px/20px",
-        fontTitle: "Figtree 500 14px/20px",
-        fontTitleMedium: "Figtree 500 16px/24px",
-        fontTitleSmall: "Figtree 500 14px/20px",
-        fontBody: "Figtree 400 14px/18px",
-        fontBodyMedium: "Figtree 400 16px/24px",
-        fontBodySmall: "Figtree 400 14px/20px",
-        fontBodyHeavy: "Figtree 600 16px/24px",
-        fontBodySmallHeavy: "Figtree 600 14px/20px",
-        fontBodyLink: "Figtree 500 14px/18px",
-        fontLabel: "Figtree 400 12px/16px",
-        fontLabelHeavy: "Figtree 500 12px/16px",
-        fontLabelSmall: "Figtree 400 10px/16px",
-        fontLabelSmallHeavy: "Figtree 500 10px/16px",
-        fontLabelExtraSmall: "Figtree 400 8px/12px",
-        fontLabelExtraSmallHeavy: "Figtree 500 8px/12px",
-        fontLabelLarge: "Figtree 400 12px/16px",
-        fontLabelLargeHeavy: "Figtree 500 12px/16px",
-        fontLabelMedium: "Figtree 400 10px/16px",
-        fontLabelMediumHeavy: "Figtree 600 10px/16px",
-        fontHeadingLarge: "Figtree 600 28px/36px",
-        fontHeadingMedium: "Figtree 600 24px/32px",
-        fontHeadingSmall: "Figtree 600 18px/24px",
-
-        // Effects
-        shadowS: "rgba(0, 0, 0, 0.04)",
-        shadowM: "rgba(0, 0, 0, 0.04)",
-        shadowL: "rgba(0, 0, 0, 0.08)",
-        shadowXl: "rgba(0, 0, 0, 0.1)",
-      }}
-    >
-      <ChatProvider
-        threadListManager={threadListManager}
-        threadManager={threadManager}
-      >
-        <Container logoUrl={""} agentName="Crayon">
-          <SidebarContainer>
-            <SidebarHeader />
-            <SidebarContent>
-              <NewChatButton />
-              <SidebarSeparator />
-              <ThreadList />
-            </SidebarContent>
-          </SidebarContainer>
-          <ThreadContainer>
-            <MobileHeader />
-            <ScrollArea>
-              <ChatComponents />
-            </ScrollArea>
-            <Composer />
-          </ThreadContainer>
-        </Container>
-      </ChatProvider>
-    </ThemeProvider>
+    <C1Chat
+      threadManager={threadManager}
+      threadListManager={threadListManager}
+    />
   );
 };
 
