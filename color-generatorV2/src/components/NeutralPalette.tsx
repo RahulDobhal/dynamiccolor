@@ -78,7 +78,10 @@ const NeutralPalette: React.FC<NeutralPaletteProps> = ({
   palette,
   getBestTextColor,
 }) => {
-  console.log(palette);
+  console.log("neutral palette", palette);
+  if (palette.length === 0) {
+    return null;
+  }
   return (
     <Container>
       <style>

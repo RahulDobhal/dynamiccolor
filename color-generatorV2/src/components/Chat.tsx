@@ -168,7 +168,7 @@ export const Chat = () => {
         successText: "rgba(117, 224, 167, 1)",
         linkText: "rgba(255, 255, 255, 1)",
         infoText: "rgba(125, 179, 247, 1)",
-        chatContainerBg: "var(--tone-57)",
+        chatContainerBg: "var(--tone-92)",
         chatAssistantResponseBg: "rgba(41, 41, 41, 1)",
         chatUserResponseBg: "rgba(255, 255, 255, 1)",
         chatAssistantResponseText: "rgba(255, 255, 255, 1)",

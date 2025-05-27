@@ -38,15 +38,18 @@ const TonalPalette: React.FC<TonalPaletteProps> = ({
   inputToneIndex,
   onSwatchClick,
 }) => {
-  console.log(palette);
+  console.log('TonalPalette palette:', palette);
   return (
     <Container>
       <style>
         {`
           body {
-            ${palette
-              .map((color) => `--tone-${color.tone}: ${color.hex};`)
-              .join("\n            ")}
+            ${palette && palette.length > 0
+              ? palette
+                  .map((color) => `--tone-${color.tone}: ${color.hex};`)
+                  .join("\n            ")
+              : "/* No palette data */"
+            }
           }
         `}
       </style>

@@ -154,7 +154,7 @@ const ColorGenerator: React.FC = () => {
   const [selectedSwatchIndex, setSelectedSwatchIndex] = useState<number | null>(null);
   const [textColor, setTextColor] = useState('#FFFFFF');
   const [hctValues, setHctValues] = useState({ hue: 0, chroma: 0, tone: 0 });
-  const [curveFunction, setCurveFunction] = useState<CurveFunction>('material');
+  const [curveFunction, setCurveFunction] = useState<CurveFunction>('s-shaped');
   const [stepCount, setStepCount] = useState(22);
   const [includeExtremes, setIncludeExtremes] = useState(false);
 
