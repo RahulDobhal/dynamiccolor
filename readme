@@ -1,0 +1,72 @@
+# Detailed Workflow for the Dynamic Color System
+
+## 1. User Input & HCT Conversion  
+1. **User picks a base color** (hex or RGB) via the color picker.  
+2. **Convert** that sRGB value into HCT:  
+   ```js
+   import { Hct } from '@material/material-color-utilities';
+   const argb     = argbFromHex(baseHex);
+   const inputHct = Hct.fromInt(argb);
+   const { hue, chroma, tone: inputTone } = inputHct;
+Hue (0–360°) → color angle
+
+Chroma → color intensity
+
+Tone (0–100) → perceived lightness
+
+2. Defining & Generating the Tonal Palette
+Tone Steps:
+
+cpp
+Copy
+const TONE_STEPS = [0, 4, 8, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 99, 100];
+Loop through each tone in TONE_STEPS:
+
+Create a new HCT color with the same hue and chroma, but tone = current step.
+
+js
+Copy
+const swatchHct = Hct.from(hue, chroma, tone);
+The library automatically clamps chroma if out of gamut.
+
+Convert back to hex for CSS:
+
+js
+Copy
+const hexSwatch = hexFromArgb(swatchHct.toInt());
+Collect these hexes into an array or map:
+
+js
+Copy
+const tonalPalette = TONE_STEPS.map(t => hexFromArgb(Hct.from(hue, chroma, t).toInt()));
+3. Marking the Input Color’s Position
+Compare the user’s exact inputTone to your fixed steps.
+
+Find the nearest TONE_STEPS value (e.g. 54 → closest is 50 or 60).
+
+Highlight that index in your UI to show “this swatch is the user’s color.”
+
+4. Picking a Readable Text Color
+Test black (#000000) vs. white (#FFFFFF) contrast on the user’s base color:
+
+js
+Copy
+const contrastWhite = getContrastRatio(baseHex, '#FFFFFF');
+const contrastBlack = getContrastRatio(baseHex, '#000000');
+Choose the one that meets WCAG (≥4.5:1).
+
+Fallback: if neither passes, pick a dark tone (e.g. T10) or light tone (e.g. T90) from your generated palette that does.
+
+5. Building the Alpha Palette
+Alpha Steps: e.g. [0.05, 0.1, 0.2, 0.4, 0.6, 0.8].
+
+For each hex in tonalPalette, convert to RGB and append alpha:
+
+js
+Copy
+function alphaVariants(hex) {
+  const { r,g,b } = hexToRgb(hex);
+  return [0.05,0.1,0.2,0.4,0.6,0.8]
+    .map(a => `rgba(${r},${g},${b},${a})`);
+}
+Store per-tone arrays of semi-transparent versions.
